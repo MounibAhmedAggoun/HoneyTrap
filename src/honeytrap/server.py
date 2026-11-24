@@ -141,9 +141,9 @@ class TCPServer:
             except OSError:
                 pass
 
-        logger.info(
-            "HoneyTrap stopped | total=%s active=%s rejected=%s",
-            self.stats.total_connections,
-            self.stats.active_connections,
-            self.stats.rejected_connections,
-        )
+        stats = self.stats.snapshot()
+
+        logger.info("HoneyTrap stopped")
+        logger.info("Total connections: %s", stats["total_connections"])
+        logger.info("Active connections: %s", stats["active_connections"])
+        logger.info("Rejected connections: %s", stats["rejected_connections"])
