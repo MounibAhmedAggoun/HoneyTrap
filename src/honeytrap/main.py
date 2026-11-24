@@ -1,7 +1,7 @@
 import argparse
-import logging
 
 from honeytrap.config import ServerConfig
+from honeytrap.logger import setup_logging
 from honeytrap.server import TCPServer
 
 
@@ -16,10 +16,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> None:
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s [%(levelname)s] %(message)s",
-    )
+    setup_logging()
 
     args = parse_args()
 
@@ -44,7 +41,6 @@ def main() -> None:
     try:
         server.start()
     except KeyboardInterrupt:
-        print("\nShutting down HoneyTrap...")
         server.stop()
 
 

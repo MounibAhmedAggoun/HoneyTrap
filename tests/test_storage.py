@@ -1,3 +1,5 @@
+import threading
+
 from honeytrap.events import Event
 from honeytrap.storage import EventStorage
 
@@ -38,3 +40,24 @@ def test_storage_creates_directory(tmp_path):
     storage.save(Event("connection_opened", "session-1"))
 
     assert storage.file_path.exists()
+
+
+def test_concurrent_event_writes(tmp_path):
+    storage = EventStorage(tmp_path / "events.jsonl")
+    total = 100
+
+    threads = [
+        threading.Thread(
+            target=storage.save,
+            args=(Event("connection_opened", f"session-{i}"),),
+        )
+        for i in range(total)
+    ]
+
+    for thread in threads:
+        thread.start()
+
+    for thread in threads:
+        thread.join()
+
+    assert len(storage.load_all()) == total
