@@ -3,6 +3,7 @@ import socket
 import threading
 
 from honeytrap.config import ServerConfig
+from honeytrap.event_types import EventType
 from honeytrap.events import Event
 from honeytrap.session import Session
 from honeytrap.storage import EventStorage
@@ -91,7 +92,7 @@ class TCPServer:
 
         self._record_event(
             Event(
-                event_type="connection_opened",
+                event_type=EventType.CONNECTION_OPENED,
                 session_id=session.session_id,
                 details={
                     "client_ip": session.client_ip,
@@ -121,7 +122,7 @@ class TCPServer:
 
             self._record_event(
                 Event(
-                    event_type="connection_closed",
+                    event_type=EventType.CONNECTION_CLOSED,
                     session_id=session.session_id,
                     details={
                         "duration": session.duration,
