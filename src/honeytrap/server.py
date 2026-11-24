@@ -6,6 +6,7 @@ from honeytrap.config import ServerConfig
 from honeytrap.event_types import EventType
 from honeytrap.events import Event
 from honeytrap.session import Session
+from honeytrap.stats import ServerStats
 from honeytrap.storage import EventStorage
 
 logger = logging.getLogger(__name__)
@@ -25,6 +26,7 @@ class TCPServer:
         self.timeout = self.config.timeout
 
         self.storage = storage or EventStorage()
+        self.stats = ServerStats()
 
         self.server_socket: socket.socket | None = None
         self.running = False
@@ -32,7 +34,6 @@ class TCPServer:
         self.sessions: dict[str, Session] = {}
         self.events: list[Event] = []
 
-        self._active_connections = 0
         self._lock = threading.Lock()
 
     def _record_event(self, event: Event) -> None:
@@ -62,11 +63,12 @@ class TCPServer:
                     break
 
                 with self._lock:
-                    if self._active_connections >= self.max_connections:
+                    if self.stats.active_connections >= self.max_connections:
+                        self.stats.connection_rejected()
                         client_socket.close()
                         continue
 
-                    self._active_connections += 1
+                    self.stats.connection_opened()
 
                 thread = threading.Thread(
                     target=self._handle_client,
@@ -124,14 +126,11 @@ class TCPServer:
                 Event(
                     event_type=EventType.CONNECTION_CLOSED,
                     session_id=session.session_id,
-                    details={
-                        "duration": session.duration,
-                    },
+                    details={"duration": session.duration},
                 )
             )
 
-            with self._lock:
-                self._active_connections -= 1
+            self.stats.connection_closed()
 
     def stop(self) -> None:
         self.running = False
@@ -142,4 +141,9 @@ class TCPServer:
             except OSError:
                 pass
 
-        logger.info("HoneyTrap server stopped")
+        logger.info(
+            "HoneyTrap stopped | total=%s active=%s rejected=%s",
+            self.stats.total_connections,
+            self.stats.active_connections,
+            self.stats.rejected_connections,
+        )
