@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 
@@ -9,7 +9,7 @@ class Event:
     session_id: str
     details: dict = field(default_factory=dict)
     timestamp: datetime = field(
-        default_factory=lambda: datetime.now(timezone.utc)
+        default_factory=lambda: datetime.now(UTC)
     )
     event_id: str = field(default_factory=lambda: str(uuid4()))
 

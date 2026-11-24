@@ -1,4 +1,4 @@
-from datetime import timezone
+from datetime import UTC
 
 from honeytrap.events import Event
 
@@ -12,7 +12,7 @@ def test_event_creation():
     assert event.event_type == "connection_opened"
     assert event.session_id == "session-123"
     assert event.event_id
-    assert event.timestamp.tzinfo == timezone.utc
+    assert event.timestamp.tzinfo == UTC
     assert event.details == {}
 
 

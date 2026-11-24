@@ -1,4 +1,4 @@
-from datetime import timezone
+from datetime import UTC
 
 from honeytrap.session import Session
 
@@ -11,7 +11,7 @@ def test_session_creation():
     assert session.is_active
     assert session.disconnected_at is None
     assert session.session_id
-    assert session.connected_at.tzinfo == timezone.utc
+    assert session.connected_at.tzinfo == UTC
 
 
 def test_session_ids_are_unique():

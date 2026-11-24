@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 
@@ -8,7 +8,7 @@ class Session:
     client_ip: str
     client_port: int
     connected_at: datetime = field(
-        default_factory=lambda: datetime.now(timezone.utc)
+        default_factory=lambda: datetime.now(UTC)
     )
     session_id: str = field(default_factory=lambda: str(uuid4()))
     disconnected_at: datetime | None = None
@@ -19,7 +19,7 @@ class Session:
 
     def close(self) -> None:
         if self.is_active:
-            self.disconnected_at = datetime.now(timezone.utc)
+            self.disconnected_at = datetime.now(UTC)
 
     @property
     def duration(self) -> float | None:
