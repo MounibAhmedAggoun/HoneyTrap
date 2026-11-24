@@ -2,7 +2,9 @@ import socket
 import threading
 import time
 
+from honeytrap.config import ServerConfig
 from honeytrap.server import TCPServer
+from honeytrap.storage import EventStorage
 
 
 def get_free_port():
@@ -26,7 +28,7 @@ def wait_for_server(port, timeout=3):
 
 def test_server_accepts_connection_and_tracks_session():
     port = get_free_port()
-    server = TCPServer(port=port)
+    server = TCPServer(config=ServerConfig(port=port))
 
     thread = threading.Thread(target=server.start, daemon=True)
     thread.start()
@@ -54,7 +56,7 @@ def test_server_accepts_connection_and_tracks_session():
 
 def test_server_stops_cleanly():
     port = get_free_port()
-    server = TCPServer(port=port)
+    server = TCPServer(config=ServerConfig(port=port))
 
     thread = threading.Thread(target=server.start, daemon=True)
     thread.start()
@@ -66,3 +68,39 @@ def test_server_stops_cleanly():
 
     assert not server.running
     assert not thread.is_alive()
+
+
+def test_server_persists_events(tmp_path):
+    port = get_free_port()
+    storage = EventStorage(tmp_path / "events.jsonl")
+
+    server = TCPServer(
+        config=ServerConfig(port=port),
+        storage=storage,
+    )
+
+    thread = threading.Thread(target=server.start, daemon=True)
+    thread.start()
+
+    wait_for_server(port)
+
+    client = socket.create_connection(("127.0.0.1", port))
+    client.close()
+
+    deadline = time.monotonic() + 3
+
+    while time.monotonic() < deadline:
+        saved_events = storage.load_all()
+
+        if any(event["event_type"] == "connection_closed" for event in saved_events):
+            break
+
+        time.sleep(0.05)
+
+    server.stop()
+    thread.join(timeout=3)
+
+    saved_events = storage.load_all()
+
+    assert any(event["event_type"] == "connection_opened" for event in saved_events)
+    assert any(event["event_type"] == "connection_closed" for event in saved_events)

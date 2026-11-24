@@ -1,0 +1,4 @@
+{"event_id": "95b39522-a1a2-4e77-91af-407878775ccc", "event_type": "connection_opened", "session_id": "fa29a97d-150f-4b6c-8ef9-23e31932f6f6", "timestamp": "2026-11-24T20:00:46.200107+00:00", "details": {"client_ip": "127.0.0.1", "client_port": 57922}}
+{"event_id": "d9076813-35e6-4165-a331-0a8a54324ce6", "event_type": "connection_opened", "session_id": "76e2bd1d-4ab3-4b7d-b073-ea193958463c", "timestamp": "2026-11-24T20:00:46.200484+00:00", "details": {"client_ip": "127.0.0.1", "client_port": 57932}}
+{"event_id": "9f150952-6264-45e1-9345-5a3e681db68b", "event_type": "connection_closed", "session_id": "fa29a97d-150f-4b6c-8ef9-23e31932f6f6", "timestamp": "2026-11-24T20:00:46.200570+00:00", "details": {"duration": 0.000494}}
+{"event_id": "aaf073de-0d43-4194-82af-26d97782f432", "event_type": "connection_closed", "session_id": "76e2bd1d-4ab3-4b7d-b073-ea193958463c", "timestamp": "2026-11-24T20:00:46.200921+00:00", "details": {"duration": 0.000516}}

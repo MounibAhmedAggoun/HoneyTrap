@@ -2,8 +2,10 @@ import logging
 import socket
 import threading
 
+from honeytrap.config import ServerConfig
 from honeytrap.events import Event
 from honeytrap.session import Session
+from honeytrap.storage import EventStorage
 
 logger = logging.getLogger(__name__)
 
@@ -11,15 +13,17 @@ logger = logging.getLogger(__name__)
 class TCPServer:
     def __init__(
         self,
-        host: str = "127.0.0.1",
-        port: int = 2222,
-        max_connections: int = 50,
-        timeout: float = 30.0,
+        config: ServerConfig | None = None,
+        storage: EventStorage | None = None,
     ):
-        self.host = host
-        self.port = port
-        self.max_connections = max_connections
-        self.timeout = timeout
+        self.config = config or ServerConfig()
+
+        self.host = self.config.host
+        self.port = self.config.port
+        self.max_connections = self.config.max_connections
+        self.timeout = self.config.timeout
+
+        self.storage = storage or EventStorage()
 
         self.server_socket: socket.socket | None = None
         self.running = False
@@ -29,6 +33,10 @@ class TCPServer:
 
         self._active_connections = 0
         self._lock = threading.Lock()
+
+    def _record_event(self, event: Event) -> None:
+        self.events.append(event)
+        self.storage.save(event)
 
     def start(self) -> None:
         self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -81,7 +89,7 @@ class TCPServer:
 
         self.sessions[session.session_id] = session
 
-        self.events.append(
+        self._record_event(
             Event(
                 event_type="connection_opened",
                 session_id=session.session_id,
@@ -111,7 +119,7 @@ class TCPServer:
             client_socket.close()
             session.close()
 
-            self.events.append(
+            self._record_event(
                 Event(
                     event_type="connection_closed",
                     session_id=session.session_id,
