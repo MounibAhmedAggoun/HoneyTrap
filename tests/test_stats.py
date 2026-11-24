@@ -56,3 +56,27 @@ def test_active_connections_never_go_negative():
     stats.connection_closed()
 
     assert stats.active_connections == 0
+
+
+def test_snapshot():
+    stats = ServerStats()
+
+    stats.connection_opened()
+    stats.connection_opened()
+    stats.connection_rejected()
+    stats.connection_closed()
+
+    assert stats.snapshot() == {
+        "total_connections": 2,
+        "active_connections": 1,
+        "rejected_connections": 1,
+    }
+
+
+def test_snapshot_is_independent():
+    stats = ServerStats()
+
+    snapshot = stats.snapshot()
+    snapshot["total_connections"] = 999
+
+    assert stats.total_connections == 0
