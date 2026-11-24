@@ -3,6 +3,7 @@ import threading
 from pathlib import Path
 
 from honeytrap.events import Event
+from honeytrap.report import generate_report
 
 
 class EventStorage:
@@ -24,3 +25,7 @@ class EventStorage:
 
             with self.file_path.open("r", encoding="utf-8") as file:
                 return [json.loads(line) for line in file if line.strip()]
+
+    def generate_report(self) -> dict:
+        events = self.load_all()
+        return generate_report(events)
