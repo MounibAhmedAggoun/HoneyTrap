@@ -14,7 +14,7 @@ class MissingSessionIDRule(Rule):
     def evaluate(self, events: list[dict]) -> list[Finding]:
         findings = []
 
-        for event in events:
+        for index, event in enumerate(events):
             if event.get("event_type") not in (
                 EventType.CONNECTION_OPENED,
                 EventType.CONNECTION_CLOSED,
@@ -26,7 +26,7 @@ class MissingSessionIDRule(Rule):
                     Finding(
                         rule_id=self.rule_id,
                         severity=self.severity,
-                        message="Connection event is missing a session ID.",
+                        message=f"Connection event at index {index} has no session ID.",
                     )
                 )
 

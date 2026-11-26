@@ -33,6 +33,18 @@ def test_detects_empty_session_id():
     assert len(findings) == 1
 
 
+def test_detects_multiple_invalid_events():
+    events = [
+        {"event_type": EventType.CONNECTION_OPENED},
+        {"event_type": EventType.CONNECTION_CLOSED, "session_id": ""},
+        {"event_type": EventType.CONNECTION_OPENED, "session_id": "s1"},
+    ]
+
+    findings = MissingSessionIDRule().evaluate(events)
+
+    assert len(findings) == 2
+
+
 def test_ignores_unrelated_events():
     events = [
         {"event_type": "other_event"},
