@@ -18,7 +18,7 @@ class InvalidEventTypeRule(Rule):
         for index, event in enumerate(events):
             event_type = event.get("event_type")
 
-            if event_type not in valid_types:
+            if not isinstance(event_type, str) or event_type not in valid_types:
                 findings.append(
                     Finding(
                         rule_id=self.rule_id,
