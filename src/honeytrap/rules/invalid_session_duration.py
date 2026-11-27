@@ -31,7 +31,7 @@ class InvalidSessionDurationRule(Rule):
                         rule_id=self.rule_id,
                         severity=self.severity,
                         message=(
-    f"Closed session at index {index} has invalid duration."
+                            f"Closed session at index {index} has invalid duration."
 ),
                         session_id=event.get("session_id"),
                     )
